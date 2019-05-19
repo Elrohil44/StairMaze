@@ -5,25 +5,21 @@ using UnityEngine;
 
 public class MazeGenerator : MonoBehaviour
 {
-    public float width;
-    public float height;
+    public MazeFloorGenerator floorGenerator;
+
+    private short[,] maze;
 
     UnityEngine.Random rand = new UnityEngine.Random();
     // Start is called before the first frame update
     void Start()
     {
-        MeshFilter mf = GetComponent<MeshFilter>();
-        MeshCollider mc = GetComponent<MeshCollider>();
+        this.maze = GenerateRandomMazeArray(24, 24);
+        PrintMaze(this.maze);
 
-
-        Mesh mesh = new Mesh();
-
-        short[,] testMaze = GenerateRandomMazeArray(24, 24);
-        PrintMaze(testMaze);
-
-        GenerateGeometryForMesh(mesh, testMaze);
-        mf.mesh = mesh;
-        mc.sharedMesh = mesh;
+        if (floorGenerator != null)
+        {
+            floorGenerator.SetMaze(this.maze);
+        }
     }
 
     short[,] GenerateRandomMazeArray(int width = 14, int height = 14,
@@ -117,49 +113,7 @@ public class MazeGenerator : MonoBehaviour
 
     }
 
-    void GenerateGeometryForMesh(Mesh mesh, short[,] maze)
-    {
-        int width = maze.GetLength(0);
-        int height = maze.GetLength(1);
-        float relPosX = -1 * (width / 2) - 0.5f;
-        float floorY = 0f;
-        float relPosZ = -1 * (height / 2) - 0.5f;
-        
-        var floorVertices = new List<Vector3>();
-        var floorTriangles = new List<int>();
-        var floorUvs = new List<Vector2>();
-
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                if (maze[x, y] != 0)
-                {
-                    continue;
-                }
-                floorVertices.Add(new Vector3(relPosX + x, floorY, relPosZ + y));
-                floorVertices.Add(new Vector3(relPosX + x + 1, floorY, relPosZ + y));
-                floorVertices.Add(new Vector3(relPosX + x, floorY, relPosZ + y + 1));
-                floorVertices.Add(new Vector3(relPosX + x + 1, floorY, relPosZ + y + 1));
-                int vertNdx = floorVertices.Count - 4;
-                floorTriangles.Add(vertNdx + 2);
-                floorTriangles.Add(vertNdx+1);
-                floorTriangles.Add(vertNdx);
-                floorTriangles.Add(vertNdx + 1);
-                floorTriangles.Add(vertNdx+2);
-                floorTriangles.Add(vertNdx + 3);
-
-                floorUvs.Add(new Vector2(0, 0));
-                floorUvs.Add(new Vector2(1, 0));
-                floorUvs.Add(new Vector2(0, 1));
-                floorUvs.Add(new Vector2(1, 1));
-
-            }
-        }
-        mesh.vertices = floorVertices.ToArray();
-        mesh.triangles = floorTriangles.ToArray();
-        mesh.uv = floorUvs.ToArray();
-    }
+    
 
     void PrintMaze(short[,] maze)
     {
@@ -181,5 +135,10 @@ public class MazeGenerator : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public short[,] GetMaze()
+    {
+        return this.maze;
     }
 }
