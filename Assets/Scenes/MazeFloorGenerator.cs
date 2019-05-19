@@ -70,5 +70,6 @@ public class MazeFloorGenerator : MonoBehaviour
         mesh.vertices = floorVertices.ToArray();
         mesh.triangles = floorTriangles.ToArray();
         mesh.uv = floorUvs.ToArray();
+        mesh.RecalculateNormals();
     }
 }
