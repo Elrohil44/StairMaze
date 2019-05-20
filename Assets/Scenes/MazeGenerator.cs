@@ -54,8 +54,8 @@ public class MazeGenerator : MonoBehaviour
         int neighboursCount = 0;
         for (int i = 0; i < density; i++)
         {
-            int x = (int)Math.Floor(UnityEngine.Random.Range(0.0f, (float)(shape[0] / 2))) * 2;
-            int y = (int)Math.Floor(UnityEngine.Random.Range(0.0f, (float)(shape[1] / 2))) * 2;
+            int x = UnityEngine.Random.Range(0, shape[0] / 2) * 2;
+            int y = UnityEngine.Random.Range(0, shape[1] / 2) * 2;
             Z[x, y] = 1;
 
             for (int j = 0; j < complexity; j++)
@@ -91,7 +91,7 @@ public class MazeGenerator : MonoBehaviour
 
                 if (neighboursCount > 0)
                 {
-                    int randNeighbourNdx = (int)Math.Floor(UnityEngine.Random.Range(0.0f, neighboursCount));
+                    int randNeighbourNdx = UnityEngine.Random.Range(0, neighboursCount);
                     int x_ = neighbours[randNeighbourNdx, 0];
                     int y_ = neighbours[randNeighbourNdx, 1];
                     if (Z[x_, y_] == 0)
