@@ -21,7 +21,7 @@ public class MenuInGame : MonoBehaviour
     public Button applyButton;
     public Resolution[] resolutions;
     public GameSettings gameSettings;
-
+    public InputField seedInput;
     // Scene
     Scene m_Scene;
 
@@ -59,7 +59,11 @@ public class MenuInGame : MonoBehaviour
 
         // check if is main menu scene
         if (m_Scene.buildIndex == 0)
+        {
+            InputField inputField = MainCanvas.gameObject.transform.Find("InGameMenuPanel").transform.Find("SeedValue").gameObject.GetComponent<InputField>();
+            inputField.onValueChanged.AddListener(Settings.setSeed);
             return;
+        }
 
         // add options button listener
         Button btnOptions = MainCanvas.gameObject.transform.Find("InGameMenuPanel").transform.Find("SettingsBtn").gameObject.GetComponent<Button>();
@@ -86,11 +90,9 @@ public class MenuInGame : MonoBehaviour
     {
         // get current scene
         m_Scene = SceneManager.GetActiveScene();
-
         // check if is main menu scene
         if (m_Scene.buildIndex == 0)
             return;
-
         // if press escape on keyboard and your health is > 0 pause game and show in game menu
         if (Input.GetKeyDown(KeyCode.Escape) && this.gameObject.GetComponent<PlayerBehaviour>().health > 0)
         {

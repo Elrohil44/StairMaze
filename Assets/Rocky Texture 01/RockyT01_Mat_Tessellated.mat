@@ -66,8 +66,8 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _Parallax: 0.56
-    - _Shininess: 0.044
+    - _Parallax: 0.01
+    - _Shininess: 0.03
     - _Smoothness: 0.5
     - _SrcBlend: 1
     - _UVSec: 0

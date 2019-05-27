@@ -41,8 +41,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private float m_NextStep;
         private bool m_Jumping;
         private AudioSource m_AudioSource;
-
-        public GameObject canvas;
+        
         float tempMouseSensX = 0;
         float tempMouseSensY = 0;
 
@@ -87,19 +86,10 @@ namespace UnityStandardAssets.Characters.FirstPerson
             }
 
             m_PreviouslyGrounded = m_CharacterController.isGrounded;
-
-            if (canvas.transform.Find("InGameMenuPanel").gameObject.activeSelf == true)
-            {
-                m_MouseLook.lockCursor = true;
-                m_MouseLook.XSensitivity = 0;
-                m_MouseLook.YSensitivity = 0;
-            }
-            else
-            {
-                m_MouseLook.lockCursor = false;
-                m_MouseLook.XSensitivity = tempMouseSensX;
-                m_MouseLook.YSensitivity = tempMouseSensY;
-            }
+            
+            m_MouseLook.lockCursor = false;
+            m_MouseLook.XSensitivity = tempMouseSensX;
+            m_MouseLook.YSensitivity = tempMouseSensY;
 
         }
 

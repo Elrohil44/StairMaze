@@ -5,15 +5,11 @@ using UnityEngine;
 public class PickupBattery : MonoBehaviour
 {
     [Header("Battery System Settings")]
-    public GameObject Player;
     public float chargeValue;
 
     void OnTriggerEnter(Collider collider)
     {
-        if (collider.gameObject.transform.tag == "Player")
-        {
-            collider.gameObject.GetComponent<PlayerBehaviour>().pickUpUI.SetActive(true);
-        }
+
     }
 
     void OnTriggerStay(Collider collider)
@@ -23,10 +19,7 @@ public class PickupBattery : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.E))
             {
                 Debug.Log("You get this battery: " + collider.gameObject.name);
-
-                // disable UI
-                collider.gameObject.GetComponent<PlayerBehaviour>().pickUpUI.SetActive(false);
-
+                
                 // add battery value                
                 AddBattery(collider.gameObject, chargeValue);
 
@@ -38,11 +31,7 @@ public class PickupBattery : MonoBehaviour
 
     void OnTriggerExit(Collider collider)
     {
-        if (collider.gameObject.transform.tag == "Player")
-        {
-            // disable UI
-            collider.gameObject.GetComponent<PlayerBehaviour>().pickUpUI.SetActive(false);
-        }
+
     }
 
     void AddBattery(GameObject player, float value)
