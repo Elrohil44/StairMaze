@@ -12,6 +12,7 @@ public class MazeGenerator : MonoBehaviour
     public MazeWallGenerator wallGenerator;
     public int level;
     public int seed;
+    public Vector3 exit;
 
     private short[,] maze;
 
@@ -74,12 +75,20 @@ public class MazeGenerator : MonoBehaviour
         Debug.Log("Exit is at: " + selectedLocation.ToString());
 
         maze[selectedLocation.x + 1, selectedLocation.y + 1] = 2;
+        exit = GetLocation(selectedLocation.x + 1, selectedLocation.y + 1);
         if (!selectedLocation.reversedHorizontally)
         {
             maze[selectedLocation.x + 2, selectedLocation.y + 1] = 2;
         } else
         {
             maze[selectedLocation.x, selectedLocation.y + 1] = 2;
+        }
+        if (level > 0)
+        {
+            Transform prevLevel = transform.parent.Find((level - 1).ToString());
+            Vector3 prevExit = prevLevel.gameObject.GetComponent<MazeGenerator>().exit;
+            Vector3 currentPosition = prevLevel.localPosition;
+            transform.localPosition = new Vector3(prevExit.x + currentPosition.x, transform.localPosition.y, prevExit.z + currentPosition.z);
         }
     }
 

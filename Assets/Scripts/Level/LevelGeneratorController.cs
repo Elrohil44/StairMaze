@@ -56,9 +56,11 @@ public class LevelGeneratorController : MonoBehaviour
         {
             Level newLevel = new Level();
             newLevel.number = levelNo;
-            newLevel.gameObject = Instantiate(LevelPrefab, new Vector3(0, -1f * levelNo * transform.localScale.y, 0), Quaternion.identity, transform);
+            newLevel.gameObject = Instantiate(LevelPrefab, transform);
+            newLevel.gameObject.transform.localPosition = new Vector3(0, -levelNo, 0);
             newLevel.gameObject.GetComponent<MazeGenerator>().level = levelNo;
             newLevel.gameObject.GetComponent<MazeGenerator>().seed = seed;
+            newLevel.gameObject.name = levelNo.ToString();
             Debug.Log("Created level " + levelNo);
             levels.Add(newLevel);
         }
