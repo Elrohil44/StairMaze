@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 6cc763e402f03094ca57fbbb1ab8fbf9
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: YouMurderer BB
+  fontNames:
+  - YouMurderer BB
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: c5d87242007efd849a22ca387fd0b7d7, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

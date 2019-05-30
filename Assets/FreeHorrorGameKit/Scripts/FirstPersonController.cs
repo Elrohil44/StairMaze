@@ -41,7 +41,14 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private float m_NextStep;
         private bool m_Jumping;
         private AudioSource m_AudioSource;
-        
+
+
+        [Header("Stamina Settings")]
+        public float stamina = 100;
+        public float staminaMax = 100;
+        public float staminaDecrease = 5f;
+        public float staminaIncrease = 1f;
+
         float tempMouseSensX = 0;
         float tempMouseSensY = 0;
 
@@ -114,6 +121,25 @@ namespace UnityStandardAssets.Characters.FirstPerson
             Physics.SphereCast(transform.position, m_CharacterController.radius, Vector3.down, out hitInfo,
                                m_CharacterController.height/2f, Physics.AllLayers, QueryTriggerInteraction.Ignore);
             desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal).normalized;
+
+            if (Input.GetKey(KeyCode.LeftShift) && m_MoveDir.x != desiredMove.x * speed && m_MoveDir.z != desiredMove.z * speed)
+            {
+                if (stamina <= 0)
+                {
+                    stamina = 0;
+                }
+                else
+                {
+                    stamina = Math.Max(0, stamina - staminaDecrease);
+                }
+            }
+            else if (!Input.GetKey(KeyCode.LeftShift))
+            {
+                if (stamina < staminaMax)
+                {
+                    stamina = Math.Min(stamina + staminaIncrease, staminaMax);
+                }
+            }
 
             m_MoveDir.x = desiredMove.x*speed;
             m_MoveDir.z = desiredMove.z*speed;
@@ -222,10 +248,10 @@ namespace UnityStandardAssets.Characters.FirstPerson
 #if !MOBILE_INPUT
             // On standalone builds, walk/run speed is modified by a key press.
             // keep track of whether or not the character is walking or running
-            m_IsWalking = !Input.GetKey(KeyCode.LeftShift);
+            m_IsWalking = !Input.GetKey(KeyCode.LeftShift) || stamina == 0;
 #endif
             // set the desired speed to be walking or running
-            speed = m_IsWalking ? m_WalkSpeed : m_RunSpeed;
+            speed = m_IsWalking || stamina == 0 ? m_WalkSpeed : m_RunSpeed;
             m_Input = new Vector2(horizontal, vertical);
 
             // normalize input if it exceeds 1 in combined length:
@@ -264,6 +290,11 @@ namespace UnityStandardAssets.Characters.FirstPerson
                 return;
             }
             body.AddForceAtPosition(m_CharacterController.velocity*0.1f, hit.point, ForceMode.Impulse);
+        }
+
+        public bool IsWalking()
+        {
+            return m_IsWalking;
         }
     }
 }

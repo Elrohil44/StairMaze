@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityStandardAssets.Characters.FirstPerson;
+using UnityStandardAssets.ImageEffects;
 
 public class PlayerBehaviour : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class PlayerBehaviour : MonoBehaviour
     public float battery = 100;
     public float batteryMax = 100;
     public float removeBatteryValue = 0.05f;
-    public float secondToRemoveBaterry = 5f;
+    public float maxIntensity = 5.5f;
 
     [Header("Audio Settings")]
     public AudioClip slenderNoise;
@@ -27,15 +28,14 @@ public class PlayerBehaviour : MonoBehaviour
 
     public bool paused;
 
+    private bool running;
+
 	void Start ()
     {
         // set initial health values
         health = healthMax;
         battery = batteryMax;
         
-        
-        // start consume flashlight battery
-        StartCoroutine(RemoveBaterryCharge(removeBatteryValue, secondToRemoveBaterry));
     }
 	
 	void Update ()
@@ -55,56 +55,26 @@ public class PlayerBehaviour : MonoBehaviour
             health = 0.0f;
         }
 
-        // if battery is low 50%
-        if (battery / batteryMax * 100 <= 50)
-        {
-            Debug.Log("Flashlight is running out of battery.");
-            Flashlight.transform.Find("Spotlight").gameObject.GetComponent<Light>().intensity = 2.85f;
-        }
-
-        // if battery is low 25%
-        if (battery / batteryMax * 100 <= 25)
-        {
-            Debug.Log("Flashlight is almost without battery.");
-            Flashlight.transform.Find("Spotlight").gameObject.GetComponent<Light>().intensity = 2.0f;
-        }
-
-        // if battery is low 10%
-        if (battery / batteryMax * 100 <= 10)
-        {
-            Debug.Log("You will be out of light.");
-            Flashlight.transform.Find("Spotlight").gameObject.GetComponent<Light>().intensity = 1.35f;           
-        }
-
-        // if battery out%
-        if (battery / batteryMax * 100 <= 0)
-        {
-            battery = 0.00f;
-            Debug.Log("The flashlight battery is out and you are out of the light.");
-            Flashlight.transform.Find("Spotlight").gameObject.GetComponent<Light>().intensity = 0.0f;
-        }
-        
         //animations
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && !transform.GetComponent<FirstPersonController>().IsWalking())
             this.gameObject.GetComponent<Animation>().CrossFade("Run", 1);
         else
             this.gameObject.GetComponent<Animation>().CrossFade("Idle", 1);
-        
     }
 
-    public IEnumerator RemoveBaterryCharge(float value, float time)
+    private void FixedUpdate()
     {
-        while (true)
+        if (battery > 0)
         {
-            yield return new WaitForSeconds(time);
-
-            Debug.Log("Removing baterry value: " + value);
-
-            if (battery > 0)
-                battery -= value;
-            else
-                Debug.Log("The flashlight battery is out");
+            battery -= removeBatteryValue;
         }
+
+        float batteryPercentage = battery / batteryMax;
+        float color = batteryPercentage > 1
+            ? 1
+            : batteryPercentage;
+        Flashlight.transform.Find("Spotlight").gameObject.GetComponent<Light>().intensity = maxIntensity * batteryPercentage;
+        Flashlight.transform.Find("Spotlight").gameObject.GetComponent<Light>().color = new Color(1, color, color);
     }
 
     public IEnumerator RemovePlayerHealth(float value, float time)
@@ -181,5 +151,16 @@ public class PlayerBehaviour : MonoBehaviour
                 this.GetComponent<AudioSource>().loop = false;
             }          
         }
+    }
+
+    public void DisableMotionBlur()
+    {
+        gameObject.transform.Find("Main Camera").GetComponent<MotionBlur>().enabled = false;
+    }
+
+    public void TriggerMotionBlur()
+    {
+        gameObject.transform.Find("Main Camera").GetComponent<MotionBlur>().enabled = true;
+        Invoke("DisableMotionBlur", 10);
     }
 }

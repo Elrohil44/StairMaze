@@ -2,25 +2,11 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-using TMPro;
 
 public class MazeGenerator : MonoBehaviour
 {
     public GameObject BatteryPrefab;
     public GameObject Stairs;
-    public GameObject LevelTextPrefab;
-    public GameObject ScaryTextPrefab;
-
-    public static string[] ScaryTexts = new string[]
-    {
-        "You will be next",
-        "See you downstairs",
-        "You won't hide",
-        "I'll wait for lights down",
-        "There is no way out!",
-        "Winter is coming",
-        "The North remembers"
-    };
 
     public MazeFloorGenerator floorGenerator;
     public MazeCeilingGenerator ceilingGenerator;
@@ -45,8 +31,6 @@ public class MazeGenerator : MonoBehaviour
         SetPlayerStartPlaceInMaze(this.maze);
         PlaceExit(this.maze);
         PlaceBatteries();
-        PlaceLevelText();
-        PlaceScaryText();
         PrintMaze(this.maze);
         // generate geometry
         if (floorGenerator != null)
@@ -91,15 +75,9 @@ public class MazeGenerator : MonoBehaviour
             selectedLocation = placements[placements.Count > 1 ? rand.Next(0, placements.Count - 1) : 0];
         } else
         {
-            if (level == 0)
-            {
-                selectedLocation = new PlacementLocation((int)Math.Floor(maze.GetLength(0) / 2.0), (int)Math.Floor(maze.GetLength(1) / 2.0), false, false);
-            } else
-            {
-                Transform prevLevel = transform.parent.Find((level - 1).ToString());
-                PlacementLocation prevExit = prevLevel.gameObject.GetComponent<MazeGenerator>().exitPlacement;
-                selectedLocation = new PlacementLocation((int)Math.Floor(maze.GetLength(0) / 2.0), (int)Math.Floor(maze.GetLength(1) / 2.0), !prevExit.reversedHorizontally, false);
-            }
+            Transform prevLevel = transform.parent.Find((level - 1).ToString());
+            PlacementLocation prevExit = prevLevel.gameObject.GetComponent<MazeGenerator>().exitPlacement;
+            selectedLocation = new PlacementLocation((int)Math.Floor(maze.GetLength(0)/2.0), (int)Math.Floor(maze.GetLength(1) / 2.0), !prevExit.reversedHorizontally, false);
         }
         this.exitPlacement = selectedLocation;
         Debug.Log("Exit is at: " + selectedLocation.ToString());
@@ -136,125 +114,14 @@ public class MazeGenerator : MonoBehaviour
 
         List<PlacementLocation> placements = GetPlacementLocations(cornerPattern);
 
-        bool alternativeLocation = false;
-        if (placements.Count == 0)
-        {
-            cornerPattern = new short[,]
-            {
-                { 0, 0 }
-            };
+        PlacementLocation selectedLocation = placements[rand.Next(0, placements.Count - 1)];
+        Debug.Log("Battery is at: " + selectedLocation.ToString());
 
-            placements = GetPlacementLocations(cornerPattern);
-            alternativeLocation = true;
-        }
-        if (placements.Count > 0)
-        {
-            PlacementLocation selectedLocation = placements.Count > 1
-                ? placements[rand.Next(0, placements.Count - 1)]
-                : placements[0];
+        maze[selectedLocation.x + 1, selectedLocation.y + 1] = 4;
 
-            int x = alternativeLocation
-                ? selectedLocation.x
-                : selectedLocation.x + 1;
-            int y = alternativeLocation
-                ? selectedLocation.y
-                : selectedLocation.y + 1;
-
-            maze[x,y] = 4;
-
-            Transform batteries = this.gameObject.transform.Find("Batteries");
-            GameObject battery = Instantiate(BatteryPrefab, batteries);
-            battery.transform.localPosition = GetLocation(x, y);
-        }
-    }
-
-    void PlaceLevelText()
-    {
-        short[,] blindWayPattern = new short[,]
-        {
-            { 1, 1, 1 },
-            { 1, 0, 1 },
-            { 1, 0, 1 }
-        };
-
-        List<PlacementLocation> placements = GetPlacementLocations(blindWayPattern);
-
-        Transform texts = this.gameObject.transform.Find("Texts");
-        placements.ForEach(placement =>
-        {
-            if (placement.reversedHorizontally) return;
-            GameObject text = Instantiate(LevelTextPrefab, texts);
-            Vector3 position = GetLocation(placement.x + 1, placement.y + 1);
-            text.GetComponent<TextMeshPro>().text = (level + 1).ToString();
-            if (!placement.reversedVertically)
-            {
-                position.z -= 0.4999f;
-                text.transform.Rotate(0, 180, 0, Space.Self);
-            }
-            else
-            {
-                position.z += 0.4999f;
-            }
-            text.transform.localPosition = position;
-        });
-
-        placements = GetPlacementLocations(TransposePattern(blindWayPattern));
-
-        placements.ForEach(placement =>
-        {
-
-            if (placement.reversedVertically) return;
-            GameObject text = Instantiate(LevelTextPrefab, texts);
-            Vector3 position = GetLocation(placement.x + 1, placement.y + 1);
-            text.GetComponent<TextMeshPro>().text = (level + 1).ToString();
-            if (!placement.reversedHorizontally)
-            {
-                position.x -= 0.4999f;
-                text.transform.Rotate(0, -90, 0, Space.Self);
-            }
-            else
-            {
-                position.x += 0.4999f;
-                text.transform.Rotate(0, 90, 0, Space.Self);
-            }
-            text.transform.localPosition = position;
-        });
-    }
-
-    void PlaceScaryText()
-    {
-        short[,] corridorPattern = new short[,]
-        {
-            { 1, 1, 1 },
-            { 0, 0, 0 }
-        };
-
-        List<PlacementLocation> placements = GetPlacementLocations(corridorPattern);
-
-        Transform texts = this.gameObject.transform.Find("Texts");
-        if (placements.Count == 0) return;
-
-        PlacementLocation selectedPlacement = placements.Count > 1
-            ? placements[rand.Next(0, placements.Count - 1)]
-            : placements[0];
-
-
-        GameObject text = Instantiate(ScaryTextPrefab, texts);
-        Vector3 position;
-        text.GetComponent<TextMeshPro>().text = ScaryTexts[rand.Next(0, ScaryTexts.Length - 1)];
-        if (selectedPlacement.reversedVertically)
-        {
-            position = GetLocation(selectedPlacement.x + 1, selectedPlacement.y);
-            position.z += 0.4999f;
-        }
-        else
-        {
-            position = GetLocation(selectedPlacement.x + 1, selectedPlacement.y + 1);
-            position.z -= 0.4999f;
-            text.transform.Rotate(0, 180, 0);
-        }
-        position.y += .2f;
-        text.transform.localPosition = position;
+        Transform batteries = this.gameObject.transform.Find("Batteries");
+        GameObject battery = Instantiate(BatteryPrefab, batteries);
+        battery.transform.localPosition = GetLocation(selectedLocation.x + 1, selectedLocation.y + 1);
     }
 
     Vector3 GetLocation(int x, int y)
@@ -318,41 +185,41 @@ public class MazeGenerator : MonoBehaviour
                 }
                 isMismatch = false;
 
-                //vertically reversed
-                for (int i = 0; i < patternWidth; i++)
-                {
-                    for (int j = 0; j < patternHeight; j++)
-                    {
-                        isMismatch |= transposedPattern[i, patternHeight - j - 1] != maze[seekX + i, seekY + j];
-                        if (isMismatch)
-                            break;
-                    }
-                    if (isMismatch)
-                        break;
-                }
-                if (!isMismatch)
-                {
-                    placements.Add(new PlacementLocation(seekX, seekY, false, true));
-                }
-                isMismatch = false;
+                // vertically reversed
+                //for (int i = 0; i < patternWidth; i++)
+                //{
+                //    for (int j = 0; j < patternHeight; j++)
+                //    {
+                //        isMismatch |= exitPattern[i, patternHeight - j - 1] != maze[seekX + i, seekY + j];
+                //        if (isMismatch)
+                //            break;
+                //    }
+                //    if (isMismatch)
+                //        break;
+                //}
+                //if (!isMismatch)
+                //{
+                //    placements.Add(new PlacementLocation(seekX, seekY, false, true));
+                //}
+                //isMismatch = false;
 
-                //horizontally and vertically reversed
-                for (int i = 0; i < patternWidth; i++)
-                {
-                    for (int j = 0; j < patternHeight; j++)
-                    {
-                        isMismatch |= transposedPattern[patternWidth - i - 1, patternHeight - j - 1] != maze[seekX + i, seekY + j];
-                        if (isMismatch)
-                            break;
-                    }
-                    if (isMismatch)
-                        break;
-                }
-                if (!isMismatch)
-                {
-                    placements.Add(new PlacementLocation(seekX, seekY, true, true));
-                }
-                isMismatch = false;
+                // horizontally and vertically reversed
+                //for (int i = 0; i < patternWidth; i++)
+                //{
+                //    for (int j = 0; j < patternHeight; j++)
+                //    {
+                //        isMismatch |= exitPattern[patternWidth - i - 1, patternHeight - j - 1] != maze[seekX + i, seekY + j];
+                //        if (isMismatch)
+                //            break;
+                //    }
+                //    if (isMismatch)
+                //        break;
+                //}
+                //if (!isMismatch)
+                //{
+                //    placements.Add(new PlacementLocation(seekX, seekY, true, true));
+                //}
+                //isMismatch = false;
             }
         }
 

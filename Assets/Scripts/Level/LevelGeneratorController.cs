@@ -37,9 +37,12 @@ public class LevelGeneratorController : MonoBehaviour
         var expectedLevelNumbers = new List<int>();
         if (currentLevel - 1 >= 0)
             expectedLevelNumbers.Add((currentLevel - 1));
+        if (currentLevel - 2 >= 0)
+            expectedLevelNumbers.Add((currentLevel - 2));
         expectedLevelNumbers.Add(currentLevel);
         expectedLevelNumbers.Add(currentLevel + 1);
-        
+        expectedLevelNumbers.Add(currentLevel + 2);
+
         // todo: remove old entries
         foreach (Level level in levels) {
             if (!expectedLevelNumbers.Contains(level.number))
